@@ -1,0 +1,177 @@
+name: Android Nightly Build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Run at 2:00 AM UTC daily
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'develop'
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=512m"
+
+jobs:
+  # Job 1: Fast Build and Test
+  build-and-test:
+    name: 🌙 Nightly Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || 'develop' }}
+          fetch-depth: 0
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+          cache-read-only: false
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11076708
+          packages: 'platform-tools,platforms;android-34,build-tools;34.0.0'
+      
+      - name: Get Build Info
+        id: info
+        run: |
+          DATE=$(date +'%Y%m%d')
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION_NAME="2.0.${DATE}-nightly-${SHORT_SHA}"
+          VERSION_CODE=$((10000 + ${{ github.run_number }}))
+          
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "DATE=$DATE" >> $GITHUB_OUTPUT
+          echo "✅ Version: $VERSION_NAME ($VERSION_CODE)"
+      
+      - name: Inject Version
+        run: |
+          sed -i "s/versionCode .*/versionCode ${{ steps.info.outputs.VERSION_CODE }}/" app/build.gradle.kts
+          sed -i "s/versionName .*/versionName \"${{ steps.info.outputs.VERSION_NAME }}\"/" app/build.gradle.kts
+      
+      - name: Run Tests
+        run: ./gradlew testDebugUnitTest --no-daemon --stacktrace
+      
+      - name: Build Nightly APK
+        run: |
+          ./gradlew assembleDebug \
+            --no-daemon \
+            --stacktrace \
+            -Pandroid.injected.signing.store.file= \
+            -Pandroid.injected.signing.store.password=
+      
+      - name: Prepare Artifacts
+        run: |
+          mkdir -p nightly
+          cp app/build/outputs/apk/debug/app-debug.apk \
+             nightly/AzKomik-nightly-${{ steps.info.outputs.VERSION_NAME }}.apk
+          
+          # Generate build info
+          cat > nightly/build-info.txt << EOF
+          Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          Version: ${{ steps.info.outputs.VERSION_NAME }}
+          Version Code: ${{ steps.info.outputs.VERSION_CODE }}
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.event.inputs.branch || 'develop' }}
+          Run Number: ${{ github.run_number }}
+          EOF
+      
+      - name: Upload Nightly APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-build-${{ steps.info.outputs.DATE }}
+          path: nightly/
+          retention-days: 7
+
+  # Job 2: Create/Update Nightly Release
+  release:
+    name: 🚀 Update Nightly Release
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || 'develop' }}
+          fetch-depth: 0
+      
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nightly-build-*
+          path: nightly
+          merge-multiple: true
+      
+      - name: Get Latest Changes
+        id: changelog
+        run: |
+          echo "## Changes in Last 24 Hours" > changes.md
+          echo "" >> changes.md
+          
+          # Get commits from last 24 hours
+          git log --since="24 hours ago" --pretty=format:"- %s (%an)" >> changes.md || echo "- No new commits" >> changes.md
+          
+          echo "" >> changes.md
+          echo "## Build Info" >> changes.md
+          echo "- Date: $(date -u '+%Y-%m-%d')" >> changes.md
+          echo "- Commit: ${{ github.sha }}" >> changes.md
+          echo "- Branch: ${{ github.event.inputs.branch || 'develop' }}" >> changes.md
+          
+          cat changes.md
+      
+      - name: Delete Old Nightly Tag
+        run: |
+          git push --delete origin nightly || true
+          git tag -d nightly || true
+        continue-on-error: true
+      
+      - name: Create/Update Nightly Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: nightly
+          name: 🌙 Nightly Build ($(date +'%Y-%m-%d'))
+          body_path: changes.md
+          files: nightly/*
+          prerelease: true
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 3: Notify
+  notify:
+    name: 📢 Notify
+    runs-on: ubuntu-latest
+    needs: [build-and-test, release]
+    if: always()
+    
+    steps:
+      - name: Notification Status
+        run: |
+          if [ "${{ needs.build-and-test.result }}" == "success" ] && [ "${{ needs.release.result }}" == "success" ]; then
+            echo "✅ Nightly build successful!"
+            echo "Download from: https://github.com/${{ github.repository }}/releases/tag/nightly"
+          else
+            echo "❌ Nightly build failed"
+          fi
