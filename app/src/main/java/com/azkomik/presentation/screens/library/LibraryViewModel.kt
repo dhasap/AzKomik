@@ -64,6 +64,8 @@ class LibraryViewModel @Inject constructor(
     fun setSortType(type: LibrarySortType) {
         _uiState.update { it.copy(sortType = type) }
     }
+    
+    fun setSort(type: LibrarySortType) = setSortType(type)
 
     fun toggleSortDirection() {
         _uiState.update { it.copy(sortAscending = !it.sortAscending) }

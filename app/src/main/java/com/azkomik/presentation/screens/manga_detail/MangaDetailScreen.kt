@@ -87,6 +87,19 @@ fun MangaDetailScreen(
                     containerColor = Color.Transparent
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { viewModel.toggleFavorite() },
+                containerColor = if (uiState.isFavorite) AppColors.Primary else AppColors.SurfaceVariant,
+                shape = CircleShape
+            ) {
+                Icon(
+                    imageVector = if (uiState.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (uiState.isFavorite) Color.White else AppColors.TextPrimary
+                )
+            }
         }
     ) { padding ->
         LazyColumn(
@@ -150,22 +163,6 @@ fun MangaDetailScreen(
             item {
                 Spacer(modifier = Modifier.height(80.dp))
             }
-        }
-
-        // Floating action button for favorite
-        FloatingActionButton(
-            onClick = { viewModel.toggleFavorite() },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = if (uiState.isFavorite) AppColors.Primary else AppColors.SurfaceVariant,
-            shape = CircleShape
-        ) {
-            Icon(
-                imageVector = if (uiState.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                contentDescription = "Favorite",
-                tint = if (uiState.isFavorite) Color.White else AppColors.TextPrimary
-            )
         }
     }
 }
@@ -527,6 +524,7 @@ fun CommentsPlaceholder() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FlowRowDetail(
     modifier: Modifier = Modifier,
@@ -534,63 +532,12 @@ fun FlowRowDetail(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     content: @Composable () -> Unit
 ) {
-    Layout(
-        content = content,
-        modifier = modifier
-    ) { measurables, constraints ->
-        val hGapPx = 8.dp.roundToPx()
-        val vGapPx = 8.dp.roundToPx()
-        
-        val rows = mutableListOf<List<androidx.compose.ui.layout.Placeable>>()
-        val rowWidths = mutableListOf<Int>()
-        val rowHeights = mutableListOf<Int>()
-        
-        var currentRow = mutableListOf<androidx.compose.ui.layout.Placeable>()
-        var currentRowWidth = 0
-        var currentRowHeight = 0
-        
-        measurables.forEach { measurable ->
-            val placeable = measurable.measure(constraints)
-            
-            if (currentRow.isNotEmpty() && currentRowWidth + hGapPx + placeable.width > constraints.maxWidth) {
-                rows.add(currentRow)
-                rowWidths.add(currentRowWidth)
-                rowHeights.add(currentRowHeight)
-                currentRow = mutableListOf()
-                currentRowWidth = 0
-                currentRowHeight = 0
-            }
-            
-            currentRow.add(placeable)
-            currentRowWidth += if (currentRow.size == 1) placeable.width else hGapPx + placeable.width
-            currentRowHeight = maxOf(currentRowHeight, placeable.height)
-        }
-        
-        if (currentRow.isNotEmpty()) {
-            rows.add(currentRow)
-            rowWidths.add(currentRowWidth)
-            rowHeights.add(currentRowHeight)
-        }
-        
-        val height = rowHeights.sum() + (rowHeights.size - 1).coerceAtLeast(0) * vGapPx
-        
-        layout(constraints.maxWidth, height) {
-            var y = 0
-            rows.forEachIndexed { rowIndex, row ->
-                var x = when (horizontalArrangement) {
-                    Arrangement.End -> constraints.maxWidth - rowWidths[rowIndex]
-                    Arrangement.Center -> (constraints.maxWidth - rowWidths[rowIndex]) / 2
-                    else -> 0
-                }
-                
-                row.forEach { placeable ->
-                    placeable.placeRelative(x, y)
-                    x += placeable.width + hGapPx
-                }
-                
-                y += rowHeights[rowIndex] + vGapPx
-            }
-        }
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = horizontalArrangement,
+        verticalArrangement = verticalArrangement
+    ) {
+        content()
     }
 }
 
@@ -612,8 +559,7 @@ fun MangaMoreMenu(
     
     DropdownMenu(
         expanded = expanded,
-        onDismissRequest = { expanded = false },
-        containerColor = AppColors.Surface
+        onDismissRequest = { expanded = false }
     ) {
         DropdownMenuItem(
             text = { Text("Migrate to other source") },

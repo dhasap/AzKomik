@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.azkomik.domain.model.tracking.*
+import com.azkomik.presentation.screens.tracking.components.*
 import com.azkomik.presentation.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)

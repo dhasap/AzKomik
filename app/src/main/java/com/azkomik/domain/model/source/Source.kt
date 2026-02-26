@@ -14,7 +14,8 @@ data class Source(
     val apiVersion: String = "1.0",
     val supportsLatest: Boolean = true,
     val supportsSearch: Boolean = true,
-    val lastUsed: Long = System.currentTimeMillis()
+    val lastUsed: Long = System.currentTimeMillis(),
+    val mangaCount: Int = 0
 ) {
     val langDisplay: String
         get() = when (lang) {
@@ -39,12 +40,12 @@ data class Source(
 
 data class SourceFilter(
     val name: String,
-    val state: FilterState = FilterState()
+    val state: FilterState = FilterState.Header("")
 )
 
 sealed class FilterState {
     data class Header(val name: String) : FilterState()
-    data class Separator() : FilterState()
+    data object Separator : FilterState()
     data class Text(val name: String, val value: String = "") : FilterState()
     data class Checkbox(val name: String, val value: Boolean = false) : FilterState()
     data class TriState(val name: String, val value: Int = STATE_IGNORE) : FilterState() {

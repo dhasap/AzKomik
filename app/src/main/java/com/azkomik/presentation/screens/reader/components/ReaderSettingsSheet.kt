@@ -134,6 +134,7 @@ fun SectionTitle(title: String) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadingModeSelector(
     currentMode: ReadingMode,
@@ -183,6 +184,7 @@ fun ReadingModeSelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaleTypeSelector(
     currentType: ScaleType,
@@ -224,6 +226,7 @@ fun ScaleTypeSelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationModeSelector(
     currentMode: NavigationMode,
@@ -256,6 +259,7 @@ fun NavigationModeSelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PageFilterSelector(
     currentFilter: PageFilterType,
@@ -283,6 +287,7 @@ fun PageFilterSelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PageSortSelector(
     currentSort: PageSortType,

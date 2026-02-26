@@ -331,6 +331,7 @@ fun BackupOptionItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationChip(
     label: String,

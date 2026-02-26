@@ -42,7 +42,6 @@ import com.azkomik.presentation.screens.reader.components.ReaderSettingsSheet
 import com.azkomik.presentation.theme.AppColors
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.ExperimentalFoundationPagerApi
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)

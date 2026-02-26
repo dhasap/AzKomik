@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Mic
+
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -92,7 +93,7 @@ fun ExploreScreen(
                     color = AppColors.TextPrimary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
-                FlowRow(
+                FlowRowExplore(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -376,77 +377,27 @@ fun LatestMangaItem(
         }
         
         Icon(
-            imageVector = androidx.compose.material.icons.Icons.Default.ChevronRight,
+            imageVector = Icons.Default.Add,
             contentDescription = null,
             tint = AppColors.TextMuted
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FlowRow(
+fun FlowRowExplore(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     content: @Composable () -> Unit
 ) {
-    Layout(
-        content = content,
-        modifier = modifier
-    ) { measurables, constraints ->
-        val hGapPx = 8.dp.roundToPx()
-        val vGapPx = 8.dp.roundToPx()
-        
-        val rows = mutableListOf<List<androidx.compose.ui.layout.Placeable>>()
-        val rowWidths = mutableListOf<Int>()
-        val rowHeights = mutableListOf<Int>()
-        
-        var currentRow = mutableListOf<androidx.compose.ui.layout.Placeable>()
-        var currentRowWidth = 0
-        var currentRowHeight = 0
-        
-        measurables.forEach { measurable ->
-            val placeable = measurable.measure(constraints)
-            
-            if (currentRow.isNotEmpty() && currentRowWidth + hGapPx + placeable.width > constraints.maxWidth) {
-                rows.add(currentRow)
-                rowWidths.add(currentRowWidth)
-                rowHeights.add(currentRowHeight)
-                currentRow = mutableListOf()
-                currentRowWidth = 0
-                currentRowHeight = 0
-            }
-            
-            currentRow.add(placeable)
-            currentRowWidth += if (currentRow.size == 1) placeable.width else hGapPx + placeable.width
-            currentRowHeight = maxOf(currentRowHeight, placeable.height)
-        }
-        
-        if (currentRow.isNotEmpty()) {
-            rows.add(currentRow)
-            rowWidths.add(currentRowWidth)
-            rowHeights.add(currentRowHeight)
-        }
-        
-        val height = rowHeights.sum() + (rowHeights.size - 1).coerceAtLeast(0) * vGapPx
-        
-        layout(constraints.maxWidth, height) {
-            var y = 0
-            rows.forEachIndexed { rowIndex, row ->
-                var x = when (horizontalArrangement) {
-                    Arrangement.End -> constraints.maxWidth - rowWidths[rowIndex]
-                    Arrangement.Center -> (constraints.maxWidth - rowWidths[rowIndex]) / 2
-                    else -> 0
-                }
-                
-                row.forEach { placeable ->
-                    placeable.placeRelative(x, y)
-                    x += placeable.width + hGapPx
-                }
-                
-                y += rowHeights[rowIndex] + vGapPx
-            }
-        }
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = horizontalArrangement,
+        verticalArrangement = verticalArrangement
+    ) {
+        content()
     }
 }
 

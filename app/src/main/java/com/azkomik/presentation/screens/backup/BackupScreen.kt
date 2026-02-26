@@ -302,6 +302,7 @@ fun RestoreBackupCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AutoBackupCard(
     enabled: Boolean,

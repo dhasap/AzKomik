@@ -29,7 +29,7 @@ data class ReaderSettings(
     val navigationMode: NavigationMode = NavigationMode.L_SHAPE,
     val invertHorizontal: Boolean = false,
     val invertVertical: Boolean = false,
-    val zoomStart: ZoomStart = ZoomStart.AUTOMATIC,
+    val zoomStart: ZoomStart = ZoomStart(),
     val cropBorders: Boolean = false,
     val webtoonCropBorders: Boolean = false,
     val pageTransitions: Boolean = true,

@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,6 +68,19 @@ fun UpdatesScreen(
                     containerColor = AppColors.Background
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* Mark all as read */ },
+                containerColor = AppColors.Primary,
+                shape = CircleShape
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DoneAll,
+                    contentDescription = "Mark all as read",
+                    tint = Color.White
+                )
+            }
         }
     ) { padding ->
         LazyColumn(
@@ -98,22 +112,6 @@ fun UpdatesScreen(
             item {
                 Spacer(modifier = Modifier.height(80.dp))
             }
-        }
-
-        // Floating action button to mark all as read
-        FloatingActionButton(
-            onClick = { /* Mark all as read */ },
-            modifier = Modifier
-                .align(androidx.compose.ui.Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = AppColors.Primary,
-            shape = CircleShape
-        ) {
-            Icon(
-                imageVector = Icons.Default.DoneAll,
-                contentDescription = "Mark all as read",
-                tint = Color.White
-            )
         }
     }
 }
