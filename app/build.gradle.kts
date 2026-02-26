@@ -83,7 +83,7 @@ dependencies {
     ksp("com.google.dagger:hilt-compiler:2.48")
 
     // Room Database
-    val roomVersion = "2.6.0"
+    val roomVersion = "2.8.4"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
