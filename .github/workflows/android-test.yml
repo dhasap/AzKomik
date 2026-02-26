@@ -45,9 +45,11 @@ jobs:
       
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11076708
-          packages: 'platform-tools,platforms;android-34,build-tools;34.0.0'
+      
+      - name: Accept Android Licenses
+        run: |
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --update || true
       
       - name: Grant execute permission
         run: chmod +x gradlew
@@ -87,9 +89,11 @@ jobs:
       
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11076708
-          packages: 'platform-tools,platforms;android-34,build-tools;34.0.0'
+      
+      - name: Accept Android Licenses
+        run: |
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --update || true
       
       - name: Run Android Lint
         run: ./gradlew lintDebug --no-daemon --continue
@@ -126,6 +130,11 @@ jobs:
       
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+      
+      - name: Accept Android Licenses
+        run: |
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --update || true
       
       # Skip tests if no test files exist
       - name: Check for Tests
