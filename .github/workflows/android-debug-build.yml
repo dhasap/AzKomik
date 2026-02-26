@@ -79,7 +79,7 @@ jobs:
         run: ./gradlew lintDebug --no-daemon --stacktrace
       
       - name: Upload Lint Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lint-reports-${{ github.run_number }}
@@ -125,7 +125,7 @@ jobs:
         if: always()
       
       - name: Upload Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-${{ github.run_number }}
@@ -135,7 +135,7 @@ jobs:
           retention-days: 14
       
       - name: Upload Coverage Reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-reports-${{ github.run_number }}
@@ -242,7 +242,7 @@ jobs:
              artifacts/AzKomik-v${{ env.version_name }}.apk
       
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-debug-v${{ env.version_name }}
           path: artifacts/*.apk
@@ -250,7 +250,7 @@ jobs:
           if-no-files-found: error
       
       - name: Upload Build Outputs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-outputs-${{ matrix.variant }}-${{ github.run_number }}
           path: |
