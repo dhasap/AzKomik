@@ -311,7 +311,7 @@ jobs:
           cat changelog.md
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build.outputs.version_name }}
           name: Release v${{ needs.build.outputs.version_name }}
