@@ -106,7 +106,7 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.2.1")
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
